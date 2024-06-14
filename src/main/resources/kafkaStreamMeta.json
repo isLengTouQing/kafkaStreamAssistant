@@ -1,0 +1,29 @@
+{
+  "kafkaEnvironment": {
+    "applicationId": "kafka-stream-application",
+    "bootstrapServers": "172.20.2.19:19092,172.20.2.19:29092,172.20.2.19:39092",
+    "defaultKeySerde": "org.apache.kafka.common.serialization.Serdes$StringSerde",
+    "defaultValueSerde": "org.apache.kafka.common.serialization.Serdes$StringSerde",
+    "consumerKeyDeserializer": "java.lang.String",
+    "consumerValueDeserializer": "java.lang.String"
+  },
+  "kafkaStreamJob": [
+    {
+      "sourceTopic": "mp.hk_erp2_sd.sd_pos_order",
+      "streamTask": [
+        {
+          "behavior": "filter",
+          "operation": [
+            {
+              "type": "double",
+              "field": "payamount",
+              "operator": "<",
+              "value": "-6.0"
+            }
+          ],
+          "targetTopic": "test-haitao"
+        }
+      ]
+    }
+  ]
+}
