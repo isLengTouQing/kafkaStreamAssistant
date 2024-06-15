@@ -11,15 +11,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 /**
- * 自用工具类
+ * 自用文件处理工具类
  */
 public class FileUtils {
+
     /**
      * 读取资源文件
      *
      * @param fileName
-     * @return
-     * @throws IOException
      */
     public static String readResourceToString(String fileName) throws IOException {
         InputStream is = KafkaStreamAssistantApplication.class.getResourceAsStream("/" + fileName);

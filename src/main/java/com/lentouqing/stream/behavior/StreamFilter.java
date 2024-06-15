@@ -1,6 +1,7 @@
 package com.lentouqing.stream.behavior;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.lentouqing.stream.common.StreamTaskConstants;
 import com.lentouqing.stream.metadata.Operation;
 import com.lentouqing.stream.metadata.StreamTask;
 import org.apache.kafka.streams.kstream.KStream;
@@ -15,18 +16,15 @@ import java.util.Locale;
  * 数据流的过滤操作
  */
 public class StreamFilter implements StreamOperation {
-    private final static String TYPE_DOUBLE = "double";
-    private final static String TYPE_INT = "int";
-    private final static String TYPE_LONG = "long";
 
     /**
      * 当前支持的数字类型
      */
     private static final HashSet<String> NUMBER_SET = new HashSet<String>() {
         {
-            add(TYPE_DOUBLE);
-            add(TYPE_INT);
-            add(TYPE_LONG);
+            add(StreamTaskConstants.TYPE_DOUBLE);
+            add(StreamTaskConstants.TYPE_INT);
+            add(StreamTaskConstants.TYPE_LONG);
         }
     };
 
@@ -66,29 +64,95 @@ public class StreamFilter implements StreamOperation {
 
         // 进行具体的过滤操作，返回过滤后的数据流以支持可持续进行过滤操作
         return sourceStream.filter(((key, value) -> {
-            JsonNode after = value.get("after");
+            JsonNode after = value.get(StreamTaskConstants.DEBEZIUM_JSON_AFTER);
             try {
+                // 对Number类型字段做处理
                 if (NUMBER_SET.contains(type)) {
                     // 根据json文件中的字段做数据过滤
-                    Number numberFieldValue = parseNumberField(after.get(targetField), type);
-                    Number tempValue = NumberFormat.getInstance(Locale.CHINA).parse(comparisonValue);
-                    // 选择对应的比较类型
-                    switch (operator) {
-                        case "<":
-                            return lessThanResult(numberFieldValue, tempValue);
-                        case ">":
-                            return greaterThanResult(numberFieldValue, tempValue);
-                        case "=":
-                            return equalsResult(numberFieldValue, tempValue);
-                        default:
-                            throw new RuntimeException("Unsupported operation");
-                    }
+                    return numberFieldFilter(after, targetField, type, comparisonValue, operator);
+                }
+                // 对String类型字段做处理
+                if (StreamTaskConstants.STING_TYPE.equals(type)) {
+                    return streamFieldFilter(after, targetField, operator, comparisonValue);
+                }
+                // 对Boolean类型字段做处理,无需判断operator默认为equals
+                if (type.equals(StreamTaskConstants.BOOLEAN_TYPE)) {
+                    return booleanFieldFilter(after, targetField, comparisonValue);
+                }
+
+                // todo 对时间类型字段做处理
+                if (type.equals("Date")) {
+
                 }
             } catch (ParseException e) {
                 throw new RuntimeException(e);
             }
             return false;
         }));
+    }
+
+    /**
+     * 对布尔类型字段做过滤操作，无需添加operator
+     * @param after
+     * @param targetField
+     * @param comparisonValue
+     */
+    private static boolean booleanFieldFilter(JsonNode after, String targetField, String comparisonValue) {
+        boolean targetValue = after.get(targetField).asBoolean();
+        if (Boolean.valueOf(comparisonValue)) {
+            return targetValue;
+        } else {
+            return !targetValue;
+        }
+    }
+
+    /**
+     * 对字符串类型字段做过滤操作
+     *
+     * @param after           当前采用DebeziumJson格式中含有after字段，该字段为DebeziumJson格式，包含字段值
+     * @param targetField     字段名称
+     * @param operator        具体操作
+     * @param comparisonValue 比较值
+     */
+    private static boolean streamFieldFilter(JsonNode after, String targetField, String operator, String comparisonValue) {
+        String targetValue = after.get(targetField).asText();
+        switch (operator) {
+            case StreamTaskConstants.STRING_EQUALS:
+                return targetValue.equals(comparisonValue);
+            case StreamTaskConstants.STARTS_WITH:
+                return targetValue.startsWith(comparisonValue);
+            case StreamTaskConstants.ENDS_WITH:
+                return targetValue.endsWith(comparisonValue);
+            case StreamTaskConstants.MATCHES:
+                return targetValue.matches(comparisonValue);
+            default:
+                throw new RuntimeException("Unsupported operation");
+        }
+    }
+
+    /**
+     * 对数字类型字段做过滤操作
+     *
+     * @param after           当前采用DebeziumJson格式中含有after字段，该字段为DebeziumJson格式，包含字段值
+     * @param targetField     字段名称
+     * @param type            字段类型
+     * @param comparisonValue 比较值
+     * @param operator        具体操作
+     */
+    private boolean numberFieldFilter(JsonNode after, String targetField, String type, String comparisonValue, String operator) throws ParseException {
+        Number numberFieldValue = parseNumberField(after.get(targetField), type);
+        Number tempValue = NumberFormat.getInstance(Locale.CHINA).parse(comparisonValue);
+        // 选择对应的比较类型
+        switch (operator) {
+            case "<":
+                return lessThanResult(numberFieldValue, tempValue);
+            case ">":
+                return greaterThanResult(numberFieldValue, tempValue);
+            case "=":
+                return equalsResult(numberFieldValue, tempValue);
+            default:
+                throw new RuntimeException("Unsupported operation");
+        }
     }
 
     /**
@@ -174,11 +238,11 @@ public class StreamFilter implements StreamOperation {
      */
     private Number parseNumberField(JsonNode value, String type) {
         switch (type) {
-            case TYPE_DOUBLE:
+            case StreamTaskConstants.TYPE_DOUBLE:
                 return value.asDouble();
-            case TYPE_INT:
+            case StreamTaskConstants.TYPE_INT:
                 return value.asInt();
-            case TYPE_LONG:
+            case StreamTaskConstants.TYPE_LONG:
                 return value.asLong();
             default:
                 throw new IllegalArgumentException("Unsupported type: " + type);

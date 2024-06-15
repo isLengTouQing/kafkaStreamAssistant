@@ -1,7 +1,7 @@
 {
   "kafkaEnvironment": {
     "applicationId": "kafka-stream-application",
-    "bootstrapServers": "172.20.2.19:19092,172.20.2.19:29092,172.20.2.19:39092",
+    "bootstrapServers": "172.20.2.17:19092,172.20.2.17:29092,172.20.2.17:39092",
     "defaultKeySerde": "org.apache.kafka.common.serialization.Serdes$StringSerde",
     "defaultValueSerde": "org.apache.kafka.common.serialization.Serdes$StringSerde",
     "consumerKeyDeserializer": "java.lang.String",
@@ -19,6 +19,20 @@
               "field": "payamount",
               "operator": "<",
               "value": "-6.0"
+            },{
+              "type": "int",
+              "field": "stock_id",
+              "operator": ">",
+              "value": "1889"
+            },{
+              "type": "String",
+              "field": "cashier",
+              "operator": "equals",
+              "value": "何何"
+            },{
+              "type": "Boolean",
+              "field": "is_pending",
+              "value": "false"
             }
           ],
           "targetTopic": "test-haitao"

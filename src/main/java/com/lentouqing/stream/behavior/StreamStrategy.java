@@ -1,5 +1,9 @@
 package com.lentouqing.stream.behavior;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.lentouqing.stream.metadata.StreamTask;
+import org.apache.kafka.streams.kstream.KStream;
+
 import java.util.HashMap;
 
 /**
@@ -17,5 +21,15 @@ public class StreamStrategy {
         streamOperationMap.put("filter", new StreamFilter());
         // 映射
         streamOperationMap.put("map", new StreamMap());
+    }
+
+    /**
+     * 根据清洗策略，对数据流进行清洗
+     * @param behavior 清洗策略
+     * @param sourceStream 数据流
+     * @param streamTask 流任务
+     */
+    public static KStream<String, JsonNode> processDataFlow(String behavior, KStream<String, JsonNode> sourceStream, StreamTask streamTask) {
+        return streamOperationMap.get(behavior).processDataFlow(sourceStream, streamTask);
     }
 }
