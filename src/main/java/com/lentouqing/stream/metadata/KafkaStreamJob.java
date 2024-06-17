@@ -17,7 +17,7 @@ public class KafkaStreamJob {
     private String sourceTopic;
 
     /**
-     * 数据清洗任务
+     * 数据流处理任务
      */
     private List<StreamTask> streamTask;
 }

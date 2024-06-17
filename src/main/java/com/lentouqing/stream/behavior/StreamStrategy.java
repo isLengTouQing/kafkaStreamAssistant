@@ -7,12 +7,12 @@ import org.apache.kafka.streams.kstream.KStream;
 import java.util.HashMap;
 
 /**
- * 当前kafkaStream支持的数据清洗操作策略，包括过滤，映射，聚合，连接
+ * 当前kafkaStream支持的数据操作策略，包括过滤，映射，聚合，连接
  */
 public class StreamStrategy {
 
     /**
-     * 构建清洗策略的Map, key:数据操作类型，value:清洗操作的实现
+     * 构建处理策略的Map, key:数据操作类型，value:处理操作的实现
      */
     public static HashMap<String, StreamOperation> streamOperationMap = new HashMap<>();
 
@@ -24,8 +24,9 @@ public class StreamStrategy {
     }
 
     /**
-     * 根据清洗策略，对数据流进行清洗
-     * @param behavior 清洗策略
+     * 根据处理策略，对数据流进行处理
+     *
+     * @param behavior 处理策略
      * @param sourceStream 数据流
      * @param streamTask 流任务
      */

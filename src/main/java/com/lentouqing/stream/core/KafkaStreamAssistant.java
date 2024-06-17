@@ -57,9 +57,9 @@ public class KafkaStreamAssistant {
     }
 
     /**
-     * 构建这次Stream流数据清洗任务的方法
+     * 构建这次Stream流数据处理任务的方法
      *
-     * @param kafkaMetadata 这次Stream流数据清洗的具体任务详情
+     * @param kafkaMetadata 这次Stream流数据处理的具体任务详情
      */
     public static StreamsBuilder getStreamsBuilder(KafkaMetadata kafkaMetadata) {
         StreamsBuilder builder = new StreamsBuilder();

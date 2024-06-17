@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * 清洗的数据字段信息
+ * 具体处理的数据字段信息
  */
 @AllArgsConstructor
 @Data

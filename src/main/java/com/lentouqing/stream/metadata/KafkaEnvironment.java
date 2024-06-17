@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 public class KafkaEnvironment {
     /**
-     *  应用程序的唯一标识符，用于在Kafka中标识生产者或消费者
+     * 应用程序的唯一标识符，用于在Kafka中标识生产者或消费者
      */
     private String applicationId;
 

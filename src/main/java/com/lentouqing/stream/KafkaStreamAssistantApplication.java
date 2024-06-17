@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * 项目启动类，通过kafkaStreamMeta.json文件中定义的任务，完成指定topic中的数据清洗，并转发到指定topic
+ * 项目启动类，通过kafkaStreamMeta.json文件中定义的任务，完成指定topic中的数据处理，并转发到指定topic
  */
 public class KafkaStreamAssistantApplication {
 
