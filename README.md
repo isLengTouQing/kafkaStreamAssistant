@@ -3,7 +3,7 @@
 ## 简介
 ![dasd](docs/LogicPiagram.png)
 
-kafkaStreamAssistant是一个协助完成kafkaStream数据流处理的帮助工具，通过配置KafkaStreamMeta.json文件，快速完成数据流处理，减少开发成本，
+kafkaStreamAssistant是一个协助完成kafkaStream数据流数据处理的帮助工具，主要是帮助无java语言基础的开发者做一些基础的kafkaStream流数据处理，通过编写配置KafkaStreamMeta.json文件，去完成数据流处理，减少开发成本，
 无需再关注数据流处理细节。
 
 ## 快速开始
