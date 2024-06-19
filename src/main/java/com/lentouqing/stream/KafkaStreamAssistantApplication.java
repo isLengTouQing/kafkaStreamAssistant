@@ -29,7 +29,7 @@ public class KafkaStreamAssistantApplication {
         KafkaStreams streams = new KafkaStreams(builder.build(), kafkaProps);
         streams.start();
 
-        // 关闭流
+        // 关闭数据流
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
     }
 }

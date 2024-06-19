@@ -68,8 +68,9 @@ kafkaStreamJob： kafkaStream数据流处理任务配置
 |  streamTask.operation.value   |           字段处理的目标值            |
 
 ### 项目执行
-
 使用命令java -jar -DKafkaStreamMeta=KafkaStreamMeta.json文件路径 KafkaStreamAssistant-version.jar
+
+### example
 
 
 

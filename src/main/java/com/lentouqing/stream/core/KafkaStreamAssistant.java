@@ -3,11 +3,7 @@ package com.lentouqing.stream.core;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lentouqing.stream.KafkaStreamAssistantApplication;
-import com.lentouqing.stream.behavior.StreamStrategy;
-import com.lentouqing.stream.metadata.KafkaEnvironment;
-import com.lentouqing.stream.metadata.KafkaMetadata;
-import com.lentouqing.stream.metadata.KafkaStreamJob;
-import com.lentouqing.stream.metadata.StreamTask;
+import com.lentouqing.stream.metadata.*;
 import com.lentouqing.stream.util.FileUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Deserializer;
@@ -20,14 +16,13 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.Consumed;
-import org.apache.kafka.streams.kstream.KStream;
-
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
- * 服务核心逻辑处理类
+ * kafkaStream数据流处理，当前支持单数据流的过滤操作，两个数据流的合并操作
  */
 public class KafkaStreamAssistant {
 
@@ -65,22 +60,16 @@ public class KafkaStreamAssistant {
         StreamsBuilder builder = new StreamsBuilder();
         List<KafkaStreamJob> kafkaStreamJob = kafkaMetadata.getKafkaStreamJob();
         Consumed<String, JsonNode> jsonConsumed = buildStringJsonNodeConsumed();
-        // 进行具体地流处理操作任务
-        for (KafkaStreamJob streamJob : kafkaStreamJob) {
-            // 获取源数据流
-            String sourceTopic = streamJob.getSourceTopic();
-            KStream<String, JsonNode> orderStream = builder.stream(sourceTopic, jsonConsumed
-                    .withName("order-input"));
-            List<StreamTask> streamTask = streamJob.getStreamTask();
-            // 根据kafkaStreamJob中信息执行具体流处理任务
-            for (StreamTask task : streamTask) {
-                // 任务类型
-                String behavior = task.getBehavior();
-                // 流处理任务的执行，获取到执行后的数据流
-                KStream<String, JsonNode> processedStream = StreamStrategy.processDataFlow(behavior, orderStream, task);
-                // 将执行后的数据流写到对应的主题
-                processedStream.to(task.getTargetTopic());
-            }
+        // 进行单个数据流处理操作任务
+        if (Objects.nonNull(kafkaStreamJob) && !kafkaStreamJob.isEmpty()) {
+            new KafkaStreamSingleJob().executeStreamJob(kafkaStreamJob, builder, jsonConsumed);
+        }
+        // 进行两个Stream流合并操作任务
+        List<KafkaStreamJoin> kafkaStreamJoinList = kafkaMetadata.getKafkaStreamJoin();
+        if (Objects.nonNull(kafkaStreamJoinList) && !kafkaStreamJoinList.isEmpty()) {
+            kafkaStreamJoinList.forEach(kafkaStreamJoin -> {
+                new KafkaStreamMerge().executeMergeStream(kafkaStreamJoin, builder, jsonConsumed);
+            });
         }
         return builder;
     }

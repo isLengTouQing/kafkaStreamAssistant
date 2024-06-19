@@ -21,4 +21,9 @@ public class KafkaMetadata {
      * kafkaStream任务信息
      */
     private List<KafkaStreamJob> kafkaStreamJob;
+
+    /**
+     * kafkaStream合并数据流的信息
+     */
+    private List<KafkaStreamJoin> kafkaStreamJoin;
 }
