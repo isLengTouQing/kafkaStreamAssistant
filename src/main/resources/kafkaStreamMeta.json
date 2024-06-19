@@ -1,7 +1,7 @@
 {
   "kafkaEnvironment": {
     "applicationId": "kafka-stream-application",
-    "bootstrapServers": "172.20.2.19:19092,172.20.2.19:29092,172.20.2.19:39092",
+    "bootstrapServers": "",
     "defaultKeySerde": "org.apache.kafka.common.serialization.Serdes$StringSerde",
     "defaultValueSerde": "org.apache.kafka.common.serialization.Serdes$StringSerde",
     "consumerKeyDeserializer": "java.lang.String",
